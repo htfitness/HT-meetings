@@ -44,7 +44,7 @@ export const api = {
 
 export interface SafeUser {
   id: number;
-  username: string;
+  email: string;
   name: string;
   role: "user" | "admin";
   active: boolean;
@@ -176,7 +176,7 @@ export interface MemberEntry {
   memberId: number;
   userId: number;
   name: string;
-  username: string;
+  email: string;
   memberRole: "member" | "group_admin";
   active: boolean;
 }

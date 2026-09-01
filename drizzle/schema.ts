@@ -33,10 +33,10 @@ export const topicStatusEnum = pgEnum("topic_status", [
 ]);
 export const memberRoleEnum = pgEnum("member_role", ["member", "group_admin"]);
 
-/** Application users (username + password sign-in). */
+/** Application users (email + password sign-in). */
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: varchar("username", { length: 64 }).notNull().unique(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   /** Site-wide admin: can manage all groups and users. */

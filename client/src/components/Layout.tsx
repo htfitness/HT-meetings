@@ -141,7 +141,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               />
               <div>
                 <p className="font-semibold">{user?.name}</p>
-                <p className="text-xs text-white/60">@{user?.username}</p>
+                <p className="text-xs text-white/60">{user?.email}</p>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto py-2">

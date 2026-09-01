@@ -15,7 +15,7 @@ DO $$ BEGIN CREATE TYPE member_role AS ENUM ('member', 'group_admin'); EXCEPTION
 
 CREATE TABLE IF NOT EXISTS users (
   id serial PRIMARY KEY,
-  username varchar(64) NOT NULL UNIQUE,
+  email varchar(320) NOT NULL UNIQUE,
   name varchar(255) NOT NULL,
   password_hash varchar(255) NOT NULL,
   role role NOT NULL DEFAULT 'user',

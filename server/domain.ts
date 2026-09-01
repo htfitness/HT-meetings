@@ -520,7 +520,7 @@ export async function listGroupMembers(groupId: number) {
       memberId: groupMembers.id,
       userId: users.id,
       name: users.name,
-      username: users.username,
+      email: users.email,
       memberRole: groupMembers.role,
       active: users.active,
     })

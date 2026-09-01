@@ -73,8 +73,9 @@ api.post(
   asyncHandler(async (req, res) => {
     const input = z
       .object({
-        name: z.string().min(1),
-        username: z.string().min(3).max(64),
+        firstName: z.string().min(1).max(100),
+        lastName: z.string().min(1).max(100),
+        email: z.string().email().max(320),
         password: z.string().min(8),
       })
       .parse(req.body);
@@ -88,8 +89,8 @@ api.post(
     const [user] = await db
       .insert(users)
       .values({
-        name: input.name,
-        username: input.username.toLowerCase(),
+        name: `${input.firstName.trim()} ${input.lastName.trim()}`,
+        email: input.email.toLowerCase().trim(),
         passwordHash,
         role: "admin",
         lastSignedIn: new Date(),
@@ -105,22 +106,22 @@ api.post(
   "/auth/login",
   asyncHandler(async (req, res) => {
     const input = z
-      .object({ username: z.string(), password: z.string() })
+      .object({ email: z.string(), password: z.string() })
       .parse(req.body);
     const db = getDb();
     const rows = await db
       .select()
       .from(users)
-      .where(eq(users.username, input.username.toLowerCase()))
+      .where(eq(users.email, input.email.toLowerCase().trim()))
       .limit(1);
     const user = rows[0];
     if (!user || !user.active) {
-      res.status(401).json({ error: "Invalid username or password" });
+      res.status(401).json({ error: "Invalid email or password" });
       return;
     }
     const valid = await bcrypt.compare(input.password, user.passwordHash);
     if (!valid) {
-      res.status(401).json({ error: "Invalid username or password" });
+      res.status(401).json({ error: "Invalid email or password" });
       return;
     }
     await db
@@ -194,7 +195,7 @@ api.get(
     const all = await db
       .select({
         id: users.id,
-        username: users.username,
+        email: users.email,
         name: users.name,
         role: users.role,
         active: users.active,
@@ -213,7 +214,7 @@ api.post(
     const input = z
       .object({
         name: z.string().min(1),
-        username: z.string().min(3).max(64),
+        email: z.string().email().max(320),
         password: z.string().min(8),
         role: z.enum(["user", "admin"]).default("user"),
       })
@@ -222,10 +223,10 @@ api.post(
     const existing = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.username, input.username.toLowerCase()))
+      .where(eq(users.email, input.email.toLowerCase().trim()))
       .limit(1);
     if (existing.length > 0) {
-      res.status(409).json({ error: "Username already taken" });
+      res.status(409).json({ error: "A user with that email already exists" });
       return;
     }
     const passwordHash = await bcrypt.hash(input.password, 10);
@@ -233,7 +234,7 @@ api.post(
       .insert(users)
       .values({
         name: input.name,
-        username: input.username.toLowerCase(),
+        email: input.email.toLowerCase().trim(),
         passwordHash,
         role: input.role,
       })

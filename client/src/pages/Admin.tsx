@@ -15,7 +15,7 @@ export default function AdminPage() {
   const [members, setMembers] = useState<MemberEntry[]>([]);
   const [newUser, setNewUser] = useState({
     name: "",
-    username: "",
+    email: "",
     password: "",
     role: "user" as "user" | "admin",
   });
@@ -59,8 +59,8 @@ export default function AdminPage() {
     setMessage("");
     try {
       await api.post("/users", newUser);
-      setMessage(`Invited ${newUser.name}. Share their username and password with them.`);
-      setNewUser({ name: "", username: "", password: "", role: "user" });
+      setMessage(`Invited ${newUser.name}. Share their email and temporary password with them.`);
+      setNewUser({ name: "", email: "", password: "", role: "user" });
       await load();
     } catch (err: any) {
       setError(err.message ?? "Failed to invite user");
@@ -97,11 +97,12 @@ export default function AdminPage() {
             className="rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-ht-teal"
           />
           <input
-            value={newUser.username}
+            type="email"
+            value={newUser.email}
             onChange={(e) =>
-              setNewUser({ ...newUser, username: e.target.value })
+              setNewUser({ ...newUser, email: e.target.value })
             }
-            placeholder="Username"
+            placeholder="Email"
             className="rounded-lg border border-black/15 px-3 py-2 text-sm outline-none focus:border-ht-teal"
           />
           <input
@@ -128,7 +129,7 @@ export default function AdminPage() {
           <button
             onClick={inviteUser}
             disabled={
-              !newUser.name || newUser.username.length < 3 || newUser.password.length < 8
+              !newUser.name || !newUser.email.includes("@") || newUser.password.length < 8
             }
             className="rounded-lg bg-ht-teal px-4 py-2 text-sm font-semibold text-white hover:bg-ht-teal-dark disabled:opacity-50"
           >
@@ -143,7 +144,7 @@ export default function AdminPage() {
           {users.map((u) => (
             <li key={u.id} className="flex flex-wrap items-center gap-2 py-2">
               <span className="font-medium">{u.name}</span>
-              <span className="text-ht-gray">@{u.username}</span>
+              <span className="text-ht-gray">{u.email}</span>
               {u.role === "admin" && (
                 <span className="rounded bg-ht-black px-1.5 py-0.5 text-xs font-semibold text-white">
                   admin
@@ -240,7 +241,7 @@ export default function AdminPage() {
                   className="flex items-center gap-2 rounded-lg bg-ht-light px-3 py-2"
                 >
                   <span className="font-medium">{m.name}</span>
-                  <span className="text-ht-gray">@{m.username}</span>
+                  <span className="text-ht-gray">{m.email}</span>
                   {m.memberRole === "group_admin" && (
                     <span className="rounded bg-ht-teal/15 px-1.5 py-0.5 text-xs font-semibold text-ht-teal-dark">
                       group admin
@@ -295,7 +296,7 @@ export default function AdminPage() {
                   )
                   .map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.name} (@{u.username})
+                      {u.name} ({u.email})
                     </option>
                   ))}
               </select>
