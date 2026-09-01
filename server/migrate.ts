@@ -158,6 +158,21 @@ CREATE INDEX IF NOT EXISTS idx_members_group ON group_members (group_id);
 export async function runMigrations() {
   const pool = getPool();
   await pool.query(DDL);
+  // Migrate databases created before the switch from username to email login.
+  await pool.query(`
+    DO $$ BEGIN
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'username'
+      ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'email'
+      ) THEN
+        ALTER TABLE users RENAME COLUMN username TO email;
+        ALTER TABLE users ALTER COLUMN email TYPE varchar(320);
+      END IF;
+    END $$;
+  `);
   console.log("[db] Schema is up to date");
 }
 
